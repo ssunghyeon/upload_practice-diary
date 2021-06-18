@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&display=swap" rel="stylesheet">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+
+    <title>Record Diary</title>
+    <style>
+        * {
+            font-family: 'Gamja Flower', cursive;
+        }
+
+        .wrap {
+            width: 900px;
+            margin: auto;
+
+        }
+
+        .posting-box {
+            width: 500px;
+            margin-left: 20px;
+        }
+
+        button.btn {
+            width: 70px;
+        }
+
+        .posting-box > .custom-file {
+            margin-bottom: 17px;
+        }
+
+        .card {
+            display: inline-block;
+        }
+    </style>
+    <script>
+
+        $(document).ready(function () {
+            listing()
+            bsCustomFileInput.init()
+        })
+
+        function listing() {
+            $.ajax({
+                type: "GET",
+                url: "/listing",
+                data: {},
+                success: function (response) {
+                    let cards = response['cards']
+                    for (let i = 0; i < cards.length; i++) {
+                        let title = cards[i]['title']
+                        let content = cards[i]['content']
+                        let file = cards[i]['file']
+                        let savetime = cards[i]['savetime']
+                        let temp_html = `<div class="card">
+                                            <img class="card-img-top" src="../static/${file}" alt="Card image cap">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${title}</h5>
+                                                <p class="card-text">${content}</p>
+                                                <p class="card-text"><small class="text-muted">${savetime}</small></p>
+                                            </div>
+                                        </div>`
+                        $('#card-box').append(temp_html)
+                    }
+                }
+            })
+        }
+
+
+        function posting() {
+            let title = $('#title').val()
+            let content = $('#content').val()
+
+            let file = $('#file')[0].files[0]
+            let form_data = new FormData()
+
+            form_data.append('file_give', file)
+            form_data.append('title_give', title)
+            form_data.append('content_give', content)
+
+
+            $.ajax({
+                type: "POST",
+                url: "/posting",
+                data: form_data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert(response['msg'])
+                    window.location.reload()
+                }
+            })
+        }
+
+    </script>
+</head>
+
+<body>
+<div class="wrap">
+    <div class="jumbotron">
+        <div class="posting-box">
+            <h1 class="display-4">Alone Diary</h1>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="file">
+                <label class="custom-file-label">Choose file</label>
+            </div>
+            <div class="form-group">
+                <input class="form-control" placeholder="Title" id="title">
+            </div>
+            <div class="form-group">
+                <textarea class="form-control" rows="3" placeholder="Content" id="content"></textarea>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="posting()">Save</button>
+        </div>
+    </div>
+    <div class="card-columns" id="card-box">
+<!--        {% for card in cards %}-->
+<!--        <div class="card">-->
+<!--            <img class="card-img-top" src="../static/{{ card.file }}" alt="Card image cap">-->
+<!--            <div class="card-body">-->
+<!--                <h5 class="card-title">{{ card.title }}</h5>-->
+<!--                <p class="card-text">{{ card.content }}</p>-->
+<!--                <p class="card-text"><small class="text-muted">{{ card.savetime }}</small></p>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        {% endfor %}-->
+    </div>
+</div>
+</body>
+</html>
